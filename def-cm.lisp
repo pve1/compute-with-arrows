@@ -1,4 +1,4 @@
-(in-package :compute)
+(in-package :compute-with-arrows)
 
 (defmacro defun-cm (&whole whole name lambda-list &body body)
   (multiple-value-bind (forms declarations docstring)

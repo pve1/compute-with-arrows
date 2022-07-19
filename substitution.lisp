@@ -1,4 +1,4 @@
-(in-package :compute)
+(in-package :compute-with-arrows)
 
 (defun make-substitution (&key new rest consumed)
   (list :new new

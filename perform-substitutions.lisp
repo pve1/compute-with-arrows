@@ -1,4 +1,4 @@
-(in-package :compute)
+(in-package :compute-with-arrows)
 
 (defvar *skip-cons-predicate* (constantly nil))
 

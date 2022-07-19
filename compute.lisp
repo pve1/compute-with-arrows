@@ -1,4 +1,4 @@
-(in-package :compute)
+(in-package :compute-with-arrows)
 
 (defun introduce-bindings (tree)
   (let* ((variables nil)

@@ -1,4 +1,4 @@
-(in-package :compute)
+(in-package :compute-with-arrows)
 
 (defun unexport-all (&optional (package *package*))
   (when (find-package package)

@@ -1,4 +1,4 @@
-(in-package :compute)
+(in-package :compute-with-arrows)
 
 (defun parse-destructuring-form (destructuring-form expression rest)
   (multiple-value-bind (required optional rest-name keywords
