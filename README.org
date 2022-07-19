@@ -52,8 +52,6 @@ or in a hook somewhere with the expressions:
 
 ;;   => (1 1 1)
 
-;;   => 1
-
 ;; Assignment to places 1
 
 (compute ()
@@ -97,6 +95,8 @@ or in a hook somewhere with the expressions:
   '(:foo (:x 1 :y 2) :bar "Hello")
   (getf ans :foo)
   (getf ans :x))
+
+;;   => 1
 
 ;; Simple destructuring 1
 
