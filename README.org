@@ -1,0 +1,153 @@
+* Compute with arrows
+
+** Introduction
+
+A macro that lets arrows ("<-") be used for assignment instead of
+setf. An implicit "answer" variable contains the result of the last
+top-level non-assignment expression. All variables assigned to inside
+the compute form using arrows are initially bound to nil. Arrows
+cannot be used to assign values to variables outside the scope of the
+COMPUTE form. For that, SETF should be used.
+
+A shorthand macro CM is defined as a COMPUTE form with the answer
+variable ANS (interned into the current package). 
+
+The arrows can be highlighted in emacs by doing
+
+  M-x highlight-regexp RET -> RET success RET
+  M-x highlight-regexp RET <- RET success RET
+
+or in a hook somewhere with the expressions:
+
+#+BEGIN_SRC lisp
+  (highlight-regexp "->" (quote success))
+  (highlight-regexp "<-" (quote success))
+#+END_SRC
+
+
+** Examples 
+
+#+BEGIN_SRC lisp
+
+(compute ()) ; => nil
+
+(compute () 1) ; => 1
+
+;; Simple assignment, left
+
+(compute ()
+  a <- 1)  ; => 1
+
+;; Right
+
+(compute ()
+  1 -> a)  ; => 1
+
+;; Multiple variables (only left arrow currently :) 
+(compute ()
+  a <- b <- c <- 1
+  (list a b c)) 
+
+;;   => (1 1 1)
+
+;; Answer variable
+
+(compute ans
+  '(:foo (:x 1 :y 2) :bar "Hello")
+  (getf ans :foo)
+  (getf ans :x))
+
+;;   => 1
+
+;; Assignment to places 1
+
+(compute ()
+  li <- (list :a 1 :b nil)
+  (getf li :b) <- 2
+  li)
+
+;;   => (:a 1 :b 2)
+
+;; Assignment to places 2
+
+(compute ()
+  p1 <- (make-instance 'person)
+  (name p1) <- "Peter"
+  (salary p1) <- 3.50
+  p1)
+
+;; Nested assignment
+
+(compute ()
+  a <- 'foo
+  (when (eq a 'foo)
+    b <- 'bar)
+  (when (eq b 'abc)
+    c <- :error)
+  (list a b c))
+
+;;   => (FOO BAR NIL)
+
+;; Assignment to values
+
+(compute ()
+  (values second minute hour) <- (decode-universal-time (get-universal-time))
+  (list second minute hour))
+
+;;   => (6 38 17)
+
+;; Simple destructuring 1
+
+(compute ()
+  li <- (list 1 2 3)
+  (a &optional b c) <- li
+  (list a b c))
+
+;; Simple destructuring 2
+
+(compute ()
+  li <- (list :a 1 :b 2 :c 3)
+  (&key a b c) <- li
+  (list a b c))
+
+;; Simple destructuring 3
+
+(compute ()
+  li <- (list 1 2 3)
+  (a b c &key) <- li ; Note &key (or &optional or &aux) at the end to
+                     ; trigger destructuring with required variables.
+  (list a b c))
+
+;; Simple destructuring 4
+
+(compute ()
+  li <- (list 1 2 3)
+  (a &rest rest) <- li
+  a)
+
+;; Warning on assignment to answer variable.
+
+(compute x
+  x <- 1) 
+
+; Quoted forms are left alone.
+(compute x
+  '(a <- b)) 
+
+;; Don't descend into nested compute forms.
+;; (Alternatively, we could macroexpand them?)
+
+(compute ()
+  (compute 1))
+
+;; Return with ^
+
+(compute ()
+  a <- -1
+  (when (= a -1)
+    ^ :error)
+  :success)
+
+;;   => :error
+
+#+END_SRC
