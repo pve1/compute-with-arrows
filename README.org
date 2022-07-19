@@ -2,10 +2,10 @@
 
 ** Introduction
 
-A macro that lets arrows ("<-") be used for assignment instead of
+A macro that lets arrows ("~<-~") be used for assignment instead of
 setf. An implicit "answer" variable contains the result of the last
 top-level non-assignment expression. All variables assigned to inside
-the compute form using arrows are initially bound to nil. Arrows
+the COMPUTE form using arrows are initially bound to nil. Arrows
 cannot be used to assign values to variables outside the scope of the
 COMPUTE form. For that, SETF should be used.
 
