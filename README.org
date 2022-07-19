@@ -14,8 +14,10 @@ variable ANS (interned into the current package).
 
 The arrows can be highlighted in emacs by doing
 
+#+BEGIN_SRC lisp
   M-x highlight-regexp RET -> RET success RET
   M-x highlight-regexp RET <- RET success RET
+#+END_SRC
 
 or in a hook somewhere with the expressions:
 
