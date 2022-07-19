@@ -9,8 +9,8 @@ the COMPUTE form using arrows are initially bound to nil. Arrows
 cannot be used to assign values to variables outside the scope of the
 COMPUTE form. For that, SETF should be used.
 
-A shorthand macro CM is defined as a COMPUTE form with the answer
-variable ANS (interned into the current package). 
+The shorthand macro CM is defined as a COMPUTE form with the answer
+variable ANS (interned into the current package).
 
 The arrows can be highlighted in emacs by doing
 
