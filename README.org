@@ -52,13 +52,6 @@ or in a hook somewhere with the expressions:
 
 ;;   => (1 1 1)
 
-;; Answer variable
-
-(compute ans
-  '(:foo (:x 1 :y 2) :bar "Hello")
-  (getf ans :foo)
-  (getf ans :x))
-
 ;;   => 1
 
 ;; Assignment to places 1
@@ -97,6 +90,13 @@ or in a hook somewhere with the expressions:
   (list second minute hour))
 
 ;;   => (6 38 17)
+
+;; Answer variable
+
+(compute ans
+  '(:foo (:x 1 :y 2) :bar "Hello")
+  (getf ans :foo)
+  (getf ans :x))
 
 ;; Simple destructuring 1
 
