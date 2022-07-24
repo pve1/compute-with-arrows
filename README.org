@@ -133,6 +133,7 @@ or in a hook somewhere with the expressions:
   x <- 1) 
 
 ; Quoted forms are left alone.
+
 (compute x
   '(a <- b)) 
 
@@ -151,5 +152,69 @@ or in a hook somewhere with the expressions:
   :success)
 
 ;;   => :error
+
+;; Accessing using "of", maps to COMPUTE-WITH-ARROWS:ACCESS and
+;; COMPUTE-WITH-ARROWS:ACCESS-SET.
+
+(compute ()
+  person <- (list)
+  type of person <- 'employee
+  name of person <- "Peter"
+  age of person <- 40
+  name of company of person <- "Initech"
+  employee-count of company of person <- 60
+  person)
+
+;; => 
+;; (COMPANY (EMPLOYEE-COUNT 60 NAME "Initech") AGE 40 NAME "Peter" TYPE EMPLOYEE)
+
+;; Accessing using "'s"
+
+(compute ()
+  person <- (list)
+  person's type <- 'employee
+  person's name <- "Peter"
+  person's age <- 40
+  person's company's name <- "Initech"
+  person's company's employee-count <- 60
+  person)
+
+;; => 
+;; (COMPANY (EMPLOYEE-COUNT 60 NAME "Initech") AGE 40 NAME "Peter" TYPE EMPLOYEE)
+
+;; Mixing "of" and "'s"
+
+(compute () 
+  person <- (list)
+  name of person's company's mascot <- "Spot"
+  color of person's company's mascot <- "Yellow"
+  person)
+
+;; => 
+;; (COMPANY (MASCOT (COLOR "Yellow" NAME "Spot")))
+
+;; Also works for hash tables.
+
+(compute ()
+  person <- (make-hash-table)
+  person's type <- 'employee
+  ...
+  person)
+
+;; =>
+;; #<HASH-TABLE :TEST EQL :COUNT 4 {1002D33023}>
+
+;; And standard-classes (maps to slot-value by default).
+
+(defclass person () (type name age (company :initform nil)))
+
+(compute ()
+  person <- (make-instance 'person)
+  person's type <- 'employee
+  ...
+  person)
+
+;; =>
+;; #<PERSON {10034BDF33}>
 
 #+END_SRC

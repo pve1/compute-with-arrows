@@ -10,5 +10,6 @@
                (:file "parse-destructuring-form")
                (:file "substitution")
                (:file "perform-substitutions")
+               (:file "access")
                (:file "compute")
                (:file "def-cm")))

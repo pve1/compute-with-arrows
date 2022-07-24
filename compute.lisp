@@ -67,21 +67,88 @@
 (defmacro noans* (form)
   form)
 
-(defun substitute-assignment (tree)
+(defun substitute-assignment (tree &key (allow-destructuring-p t))
   (destructuring-bind (&optional a op (b nil b-supplied-p) &rest rest) tree
     (cond ((and b-supplied-p (symbol-with-name-p op "<-"))
            (if (looks-like-destructuring-form-p a)
-               (parse-destructuring-form* a b rest)
-               (make-substitution :new `(noans* (setf ,a ,b))
-                                  :consumed 3
-                                  :rest rest)))
+               (progn
+                 (if allow-destructuring-p
+                     (parse-destructuring-form* a b rest)
+                     (error "Destructuring not allowed here.")))
+               (if (symbol-with-name-p (car rest) "<-")
+                   (let ((chain (substitute-assignment
+                                 (cons b rest)
+                                 :allow-destructuring-p nil)))
+                     (make-substitution :new `(noans* (setf ,a ,(substitution-new chain)))
+                                        :consumed 3
+                                        :rest (substitution-rest chain)))
+                   (make-substitution :new `(noans* (setf ,a ,b))
+                                      :consumed 3
+                                      :rest rest))))
           ((and b-supplied-p (symbol-with-name-p op "->"))
            (if (looks-like-destructuring-form-p b)
-               (parse-destructuring-form* b a rest)
+               (progn
+                 (if allow-destructuring-p
+                     (parse-destructuring-form* b a rest)
+                     (error "Destructuring not allowed here.")))
                (make-substitution :new `(noans* (setf ,b ,a))
                                   :consumed 3
                                   :rest rest)))
           (t nil))))
+
+(defun s-posessive-p (thing)
+  (and (consp thing)
+       (eq (car thing) 'quote)
+       (symbol-with-name-p (cadr thing) "S")))
+
+(defun substitute-access (tree)
+  (destructuring-bind (&optional a op (b nil b-supplied-p)
+                       &rest rest)
+      tree
+    (cond ((and b-supplied-p (s-posessive-p op))
+           (substitute-access-s tree))
+          ((and b-supplied-p (symbol-with-name-p op "OF"))
+           (substitute-access-of tree)))))
+
+(defun substitute-access-s (tree)
+  (destructuring-bind (&optional object op (property nil property-supplied-p)
+                         &rest rest)
+        tree
+      (when (and property-supplied-p (s-posessive-p op))
+        (let ((chain? (s-posessive-p (car rest))))
+          (if chain?
+              (let ((this `(access ,object ',property)))
+                (substitute-access (list* this rest)))
+              (make-substitution
+               :new `(access ,object ',property)
+               :consumed 3
+               :rest rest))))))
+
+(defun substitute-access-of (tree &key (allow-s-possessive-p t))
+  (destructuring-bind (&optional property op (object nil object-supplied-p)
+                       &rest rest)
+      tree
+    (when (and object-supplied-p (symbol-with-name-p op "OF"))
+      (let ((of-chain? (symbol-with-name-p (car rest) "OF"))
+            (s-chain? (s-posessive-p (car rest))))
+        (cond (s-chain?
+               (unless allow-s-possessive-p
+                 (error "Cannot have s-posessive here."))
+               (let ((next (substitute-access (cons object rest))))
+                 (make-substitution
+                  :new `(access ,(substitution-new next) ',property)
+                  :consumed 3
+                  :rest (substitution-rest next))))
+              (of-chain?
+               (let ((next (substitute-access (cons object rest))))
+                 (make-substitution
+                  :new `(access ,(substitution-new next) ',property)
+                  :consumed 3
+                  :rest (substitution-rest next))))
+              (t (make-substitution
+                  :new `(access ,object ',property)
+                  :consumed 3
+                  :rest rest)))))))
 
 (defun introduce-return-block (tree)
   `(block done
@@ -155,6 +222,7 @@
                       `((mark-start-of-body ,body))
                       `((mark-start-of-body progn)))
                 (mark-forms (,op ,@skip-forms) skip*)
+                (perform-substitutions (substitute-access))
                 introduce-bindings
                 introduce-destructuring-bindings
                 introduce-return-block
@@ -174,6 +242,8 @@
   `(compute (,(intern "ANS" *package*) :skip-forms (cm cm1)) ,@forms))
 
 ;; Always returns the first form.
+;; TODO: What if the first op is foo <- bar?
 (defmacro cm1 (form &rest forms)
   (let ((i (gensym)))
-    `(cm ,form ,i <- ,(intern "ANS" *package*) ,@forms ,i)))
+    ;; `(cm ,i <- ,(intern "ANS" *package*) ,@forms ,i)
+    `(cm ,i <- ,form ,@forms ,i)))

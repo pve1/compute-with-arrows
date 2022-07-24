@@ -3,8 +3,9 @@
   (:import-from #:alexandria
                 #:curry
                 #:rcurry)
-  (:export #:compute
-           #:cm
-           #:cm1
+  (:export #:cm
+           #:compute
            #:defun-cm
-           #:defmethod-cm))
+           #:defmethod-cm
+           #:access
+           #:access-set))

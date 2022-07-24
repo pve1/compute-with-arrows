@@ -50,7 +50,7 @@ the first result that succeeds, otherwise NIL."
         :when (substitutionp subst)
           :return subst))
 
-(defun perform-substitutions (substitutions tree)
+(defun perform-substitutions-1 (substitutions tree)
   (labels ((walk (tr)
              (typecase tr
                (cons (if (funcall *skip-cons-predicate* tr)
@@ -64,6 +64,20 @@ the first result that succeeds, otherwise NIL."
                                (cons (substitution-new subst)
                                      (substitution-rest subst))
                                walked-subtree))))
+               (atom tr))))
+    (walk tree)))
+
+(defun perform-substitutions (substitutions tree)
+  (labels ((walk (tr)
+             (typecase tr
+               (cons (if (funcall *skip-cons-predicate* tr)
+                         tr
+                         (let* ((subst (try-substitutions substitutions tr)))
+                           (if (substitutionp subst)
+                               (cons (walk (substitution-new subst))
+                                     (walk (substitution-rest subst)))
+                               (cons (walk (car tr))
+                                     (walk (cdr tr)))))))
                (atom tr))))
     (walk tree)))
 
