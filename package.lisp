@@ -4,6 +4,7 @@
                 #:curry
                 #:rcurry)
   (:export #:cm
+           #:cm1
            #:compute
            #:defun-cm
            #:defmethod-cm
