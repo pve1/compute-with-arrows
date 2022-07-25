@@ -80,10 +80,8 @@
                                  (cons b rest)
                                  :allow-destructuring-p nil)))
                      (make-substitution :new `(noans* (setf ,a ,(substitution-new chain)))
-                                        :consumed 3
                                         :rest (substitution-rest chain)))
                    (make-substitution :new `(noans* (setf ,a ,b))
-                                      :consumed 3
                                       :rest rest))))
           ((and b-supplied-p (symbol-with-name-p op "->"))
            (if (looks-like-destructuring-form-p b)
@@ -92,7 +90,6 @@
                      (parse-destructuring-form* b a rest)
                      (error "Destructuring not allowed here.")))
                (make-substitution :new `(noans* (setf ,b ,a))
-                                  :consumed 3
                                   :rest rest)))
           (t nil))))
 
@@ -121,7 +118,6 @@
                 (substitute-access (list* this rest)))
               (make-substitution
                :new `(access ,object ',property)
-               :consumed 3
                :rest rest))))))
 
 (defun substitute-access-of (tree &key (allow-s-possessive-p t))
@@ -137,17 +133,14 @@
                (let ((next (substitute-access (cons object rest))))
                  (make-substitution
                   :new `(access ,(substitution-new next) ',property)
-                  :consumed 3
                   :rest (substitution-rest next))))
               (of-chain?
                (let ((next (substitute-access (cons object rest))))
                  (make-substitution
                   :new `(access ,(substitution-new next) ',property)
-                  :consumed 3
                   :rest (substitution-rest next))))
               (t (make-substitution
                   :new `(access ,object ',property)
-                  :consumed 3
                   :rest rest)))))))
 
 (defun introduce-return-block (tree)
@@ -159,7 +152,6 @@
     (when (and a-supplied-p
                (symbol-with-name-p op "^"))
       (make-substitution :new `(noans* (return-from done ,a))
-                         :consumed 2
                          :rest rest))))
 
 (defun mark-start-of-body (body-marker tree)
