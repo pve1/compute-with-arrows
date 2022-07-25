@@ -50,7 +50,7 @@ the first result that succeeds, otherwise NIL."
         :when (substitutionp subst)
           :return subst))
 
-(defun perform-substitutions-1 (substitutions tree)
+(defun perform-substitutions-subtrees-first (substitutions tree)
   (labels ((walk (tr)
              (typecase tr
                (cons (if (funcall *skip-cons-predicate* tr)
