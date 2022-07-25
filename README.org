@@ -15,17 +15,24 @@ variable ANS (interned into the current package).
 The arrows can be highlighted in emacs by doing
 
 #+BEGIN_SRC lisp
-  M-x highlight-regexp RET -> RET success RET
-  M-x highlight-regexp RET <- RET success RET
+  M-x highlight-regexp RET  -> RET success RET
+  M-x highlight-regexp RET  <- RET success RET
+  M-x highlight-regexp RET  of RET font-lock-keyword-face RET
 #+END_SRC
 
 or in a hook somewhere with the expressions:
 
 #+BEGIN_SRC lisp
-  (highlight-regexp "->" (quote success))
-  (highlight-regexp "<-" (quote success))
+  (highlight-regexp " ->" 'success)
+  (highlight-regexp " <-" 'success)
+  (highlight-regexp " of" 'font-lock-keyword-face)
 #+END_SRC
 
+Please note that the forms ~^ <- -> 's of~ are treated specially by
+this macro. Therefore they should not be used as variables. If another
+macro is used inside the COMPUTE form that also treats one or more of
+these forms specially, then the final result of the macroexpansion may
+be incorrect.
 
 ** Examples 
 
