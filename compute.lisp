@@ -232,22 +232,3 @@
 
 (defmacro cm (&rest forms)
   `(compute (,(intern "ANS" *package*) :skip-forms (cm cm1)) ,@forms))
-
-;; Always returns the first form.
-;; TODO: What if the first op is foo <- bar?
-(defmacro cm1 (form &rest forms)
-  (let ((i (gensym)))
-    (cond ((symbol-with-name-p (car forms) "<-")
-           (assert (symbolp form))
-           (setf i form)
-           `(cm ,form ,@forms ,i))
-
-          ((symbol-with-name-p (car forms) "->")
-           (assert (symbolp (cadr forms)))
-           (setf i (cadr forms))
-           `(cm ,form ,@forms ,i))
-
-          (t `(cm ,i <- ,form
-                  ,i
-                  ,@forms
-                  ,i)))))
