@@ -231,4 +231,4 @@
         (t (error "Invalid argument ~S." var-or-options))))))
 
 (defmacro cm (&rest forms)
-  `(compute (,(intern "ANS" *package*) :skip-forms (cm cm1)) ,@forms))
+  `(compute (,(intern "ANS" *package*) :skip-forms (cm)) ,@forms))
