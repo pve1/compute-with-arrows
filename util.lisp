@@ -59,3 +59,9 @@
 (defun symbol-with-name-p (symbol name)
   (and (symbolp symbol)
        (string= (symbol-name symbol) name)))
+
+(defun at-least-n-elements-in-list (n list)
+  (if (zerop n)
+      t
+      (progn (assert (plusp n))
+             (not (null (nthcdr (1- n) list))))))
