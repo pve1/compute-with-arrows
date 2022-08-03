@@ -93,7 +93,7 @@
                                   :rest rest)))
           (t nil))))
 
-(defun s-posessive-p (thing)
+(defun s-possessive-p (thing)
   (and (consp thing)
        (eq (car thing) 'quote)
        (symbol-with-name-p (cadr thing) "S")))
@@ -102,7 +102,7 @@
   (destructuring-bind (&optional a op (b nil b-supplied-p)
                        &rest rest)
       tree
-    (cond ((and b-supplied-p (s-posessive-p op))
+    (cond ((and b-supplied-p (s-possessive-p op))
            (substitute-access-s tree))
           ((and b-supplied-p (symbol-with-name-p op "OF"))
            (substitute-access-of tree)))))
@@ -111,8 +111,8 @@
   (destructuring-bind (&optional object op (property nil property-supplied-p)
                          &rest rest)
         tree
-      (when (and property-supplied-p (s-posessive-p op))
-        (let ((chain? (s-posessive-p (car rest))))
+      (when (and property-supplied-p (s-possessive-p op))
+        (let ((chain? (s-possessive-p (car rest))))
           (if chain?
               (let ((this `(access ,object ',property)))
                 (substitute-access (list* this rest)))
@@ -126,10 +126,10 @@
       tree
     (when (and object-supplied-p (symbol-with-name-p op "OF"))
       (let ((of-chain? (symbol-with-name-p (car rest) "OF"))
-            (s-chain? (s-posessive-p (car rest))))
+            (s-chain? (s-possessive-p (car rest))))
         (cond (s-chain?
                (unless allow-s-possessive-p
-                 (error "Cannot have s-posessive here."))
+                 (error "Cannot have s-possessive here."))
                (let ((next (substitute-access (cons object rest))))
                  (make-substitution
                   :new `(access ,(substitution-new next) ',property)
